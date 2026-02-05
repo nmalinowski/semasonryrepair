@@ -80,7 +80,22 @@
       <li><a href="https://www.messenger.com/t/103260952334787/?messaging_source=source%3Apages%3Amessage_shortlink&amp;source_id=1441792&amp;recurring_notification=0" class="icon brands fa-facebook-messenger" aria-label="Messenger"></a></li>
       <li><button id="quote-btn" class="button quote-cta" type="button">Request a Quote</button></li>
     </ul>
+    <button class="mobile-nav-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false">
+      <span class="mobile-nav-toggle-label">Menu</span>
+      <span class="mobile-nav-toggle-icon" aria-hidden="true"></span>
+    </button>
     <nav id="nav">
+      <ul>
+        <li><a href="#intro">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#pressurewashing">Services</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#ourwork">Our Work</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#faqs">FAQs</a></li>
+      </ul>
+    </nav>
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile">
       <ul>
         <li><a href="#intro">Home</a></li>
         <li><a href="#about">About</a></li>
@@ -444,6 +459,41 @@
           }
         } catch (err) {
           statusEl.textContent = 'Network error. Please retry.';
+        }
+      });
+    })();
+
+    // Mobile navigation toggle
+    (function() {
+      const toggle = document.querySelector('.mobile-nav-toggle');
+      const mobileNav = document.getElementById('mobile-nav');
+      if (!toggle || !mobileNav) return;
+
+      function closeMobileNav() {
+        document.body.classList.remove('mobile-nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      toggle.addEventListener('click', () => {
+        const isOpen = document.body.classList.toggle('mobile-nav-open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      mobileNav.addEventListener('click', (event) => {
+        if (event.target.closest('a')) {
+          closeMobileNav();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 736) {
+          closeMobileNav();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMobileNav();
         }
       });
     })();
