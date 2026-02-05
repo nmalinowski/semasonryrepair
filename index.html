@@ -448,18 +448,27 @@
       form?.addEventListener('submit', async (e) => {
         e.preventDefault();
         statusEl.textContent = 'Sending...';
+        statusEl.classList.remove('is-error', 'is-success');
         const data = new FormData(form);
         try {
-          const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
-          if (res.ok) {
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: data,
+            headers: { Accept: 'application/json' }
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (res.ok && payload.success !== false) {
             statusEl.textContent = 'Thanks! We received your request.';
+            statusEl.classList.add('is-success');
             form.reset();
-            setTimeout(closeModal, 1200);
+            setTimeout(closeModal, 1600);
           } else {
-            statusEl.textContent = 'There was an issue sending your request. Please try again.';
+            statusEl.textContent = payload.message || 'There was an issue sending your request. Please try again.';
+            statusEl.classList.add('is-error');
           }
         } catch (err) {
           statusEl.textContent = 'Network error. Please retry.';
+          statusEl.classList.add('is-error');
         }
       });
     })();
@@ -531,22 +540,31 @@
         if (!validateEmail() || !validatePhone()) { return; }
         isSubmitting = true;
         statusEl.textContent = "Sending...";
+        statusEl.classList.remove("is-error", "is-success");
         if (submitButton) submitButton.disabled = true;
         const data = new FormData(form);
         try {
-          const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
-          if (res.ok) {
+          const res = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: data,
+            headers: { Accept: "application/json" }
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (res.ok && payload.success !== false) {
             statusEl.textContent = "Thanks! We received your message.";
+            statusEl.classList.add("is-success");
             form.reset();
             email.classList.remove("valid","invalid");
             phone.classList.remove("valid","invalid");
             emailError.textContent = "";
             phoneError.textContent = "";
           } else {
-            statusEl.textContent = "There was an issue sending your message. Please try again.";
+            statusEl.textContent = payload.message || "There was an issue sending your message. Please try again.";
+            statusEl.classList.add("is-error");
           }
         } catch (err) {
           statusEl.textContent = "Network error. Please retry.";
+          statusEl.classList.add("is-error");
         } finally {
           isSubmitting = false;
           if (submitButton) submitButton.disabled = false;
