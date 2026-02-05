@@ -20,10 +20,13 @@ Gemfile.lock
 # Ignore Mac system files
 .DS_Store
 
-
+# Node
+node_modules/
+./package.json
+./package-lock.json
 
 # Ignore AI AGENT files
-tests/screenshots/*
+tests/
 .claude/*
 .playwright-mcp/*
 docs/plans/*

@@ -75,6 +75,11 @@
 </head>
 <body class="is-preload">
   <header id="header">
+    <button id="menu-toggle" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false">
+      <span class="menu-toggle-bar"></span>
+      <span class="menu-toggle-bar"></span>
+      <span class="menu-toggle-bar"></span>
+    </button>
     <ul class="icons">
       <li><a href="https://www.facebook.com/semasonryrepair/" class="icon brands fa-facebook" aria-label="Facebook"></a></li>
       <li><a href="https://www.messenger.com/t/103260952334787/?messaging_source=source%3Apages%3Amessage_shortlink&amp;source_id=1441792&amp;recurring_notification=0" class="icon brands fa-facebook-messenger" aria-label="Messenger"></a></li>
@@ -272,7 +277,6 @@
           <h2>Get in touch</h2>
           <form id="contactForm" action="https://api.web3forms.com/submit" method="POST" novalidate>
             <input type="hidden" name="access_key" value="ed280a33-9f99-498c-8859-d544e204d112">
-            <input type="hidden" name="redirect" value="https://www.semasonryrepair.com/thanks.html">
             <input type="hidden" name="from_name" value="SE Masonry &amp; Repair Website">
             <input type="hidden" name="subject" value="New inquiry from semasonryrepair.com">
             <div class="form-group">
@@ -295,6 +299,7 @@
             </div>
             <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
             <button type="submit">Send Message</button>
+            <p id="contact-status" class="form-status" role="status"></p>
             <p style="margin-top:0.5rem;font-size:0.9rem;color:#666;">By submitting, you agree that Web3Forms will process this form to deliver your message.</p>
           </form>
         </div>
@@ -448,15 +453,16 @@
       });
     })();
 
-    // Live validation for the contact form
+    // Live validation + AJAX submit for the contact form
     (function() {
       const email = document.getElementById("email");
       const phone = document.getElementById("phone");
       const emailError = document.getElementById("emailError");
       const phoneError = document.getElementById("phoneError");
       const form = document.getElementById("contactForm");
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/;
-      const phonePattern = /^\\+?[0-9\\s\\-\\(\\)]{10,15}$/;
+      const statusEl = document.getElementById("contact-status");
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const phonePattern = /^\+?[0-9\s\-\(\)]{10,15}$/;
       function validateEmail() {
         const value = email.value.trim();
         if (value === "") { emailError.textContent = ""; email.classList.remove("valid","invalid"); return true; }
@@ -471,7 +477,55 @@
       }
       email.addEventListener("input", validateEmail);
       phone.addEventListener("input", validatePhone);
-      form.addEventListener("submit", (event) => { if (!validateEmail() || !validatePhone()) { event.preventDefault(); } });
+      form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        if (!validateEmail() || !validatePhone()) return;
+        statusEl.textContent = "Sending...";
+        statusEl.className = "form-status";
+        const data = new FormData(form);
+        const json = JSON.stringify(Object.fromEntries(data));
+        try {
+          const res = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: json
+          });
+          const result = await res.json();
+          if (res.ok) {
+            statusEl.textContent = "Thanks! Your message has been sent.";
+            statusEl.classList.add("form-status-success");
+            form.reset();
+          } else {
+            statusEl.textContent = result.message || "Something went wrong. Please try again.";
+            statusEl.classList.add("form-status-error");
+          }
+        } catch (err) {
+          statusEl.textContent = "Network error. Please try again.";
+          statusEl.classList.add("form-status-error");
+        }
+      });
+    })();
+
+    // Mobile nav toggle
+    (function() {
+      const toggle = document.getElementById('menu-toggle');
+      const nav = document.getElementById('nav');
+      if (!toggle || !nav) return;
+      toggle.addEventListener('click', function() {
+        var open = nav.classList.toggle('nav-open');
+        toggle.classList.toggle('is-active', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+      });
+      // Close nav when a link is tapped
+      nav.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() {
+          nav.classList.remove('nav-open');
+          toggle.classList.remove('is-active');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Open navigation menu');
+        });
+      });
     })();
   </script>
 </body>
