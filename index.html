@@ -75,17 +75,27 @@
 </head>
 <body class="is-preload">
   <header id="header">
-    <button id="menu-toggle" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false">
-      <span class="menu-toggle-bar"></span>
-      <span class="menu-toggle-bar"></span>
-      <span class="menu-toggle-bar"></span>
-    </button>
     <ul class="icons">
       <li><a href="https://www.facebook.com/semasonryrepair/" class="icon brands fa-facebook" aria-label="Facebook"></a></li>
       <li><a href="https://www.messenger.com/t/103260952334787/?messaging_source=source%3Apages%3Amessage_shortlink&amp;source_id=1441792&amp;recurring_notification=0" class="icon brands fa-facebook-messenger" aria-label="Messenger"></a></li>
       <li><button id="quote-btn" class="button quote-cta" type="button">Request a Quote</button></li>
     </ul>
+    <button class="mobile-nav-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false">
+      <span class="mobile-nav-toggle-label">Menu</span>
+      <span class="mobile-nav-toggle-icon" aria-hidden="true"></span>
+    </button>
     <nav id="nav">
+      <ul>
+        <li><a href="#intro">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#pressurewashing">Services</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#ourwork">Our Work</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#faqs">FAQs</a></li>
+      </ul>
+    </nav>
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile">
       <ul>
         <li><a href="#intro">Home</a></li>
         <li><a href="#about">About</a></li>
@@ -269,7 +279,7 @@
         <p>Looking to have some work done?<br>Give us a call! We provide a variety of masonry related services!</p>
         <p><strong>SE Masonry and Repair</strong></p>
         <p><strong>Located:</strong> Milwaukee, Wisconsin, United States</p>
-        <p><strong>Email:</strong> <a href="mailto:info@semasonryrepair.com">info@semasonryrepair.com</a></p>
+        <p><strong>Email:</strong> <a href="mailto:semasonryrepair@gmail.com">semasonryrepair@gmail.com</a></p>
         <p><strong>Stephanie Mucic:</strong> +1 (414) 316-1451</p>
         <p><strong>Eddie Mucic:</strong> +1 (262) 933-9451</p>
         <p><strong>Hours:</strong> Monday – Friday: 9am – 5pm, Saturday: By appointment, Sunday: Closed</p>
@@ -285,12 +295,12 @@
             </div>
             <div class="form-group">
               <label for="email">Email</label>
-              <input id="email" name="email" type="email" placeholder="Your email" aria-label="Your email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$">
+              <input id="email" name="email" type="email" placeholder="Your email" aria-label="Your email" required>
               <small class="error-message" id="emailError"></small>
             </div>
             <div class="form-group">
               <label for="phone">Phone</label>
-              <input id="phone" name="phone" type="tel" placeholder="Your phone number" aria-label="Your phone number" required pattern="^\\+?[0-9\\s\\-\\(\\)]{10,15}$">
+              <input id="phone" name="phone" type="tel" placeholder="Your phone number" aria-label="Your phone number" required>
               <small class="error-message" id="phoneError"></small>
             </div>
             <div class="form-group">
@@ -299,7 +309,7 @@
             </div>
             <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
             <button type="submit">Send Message</button>
-            <p id="contact-status" class="form-status" role="status"></p>
+            <p class="contact-status" id="contact-status" role="status"></p>
             <p style="margin-top:0.5rem;font-size:0.9rem;color:#666;">By submitting, you agree that Web3Forms will process this form to deliver your message.</p>
           </form>
         </div>
@@ -368,7 +378,7 @@
         </div>
         <div class="form-row">
           <label for="q-phone">Phone</label>
-          <input id="q-phone" name="phone" type="tel" required placeholder="+1 (___) ___-____" pattern="^\\+?[0-9\\s\\-\\(\\)]{10,15}$">
+          <input id="q-phone" name="phone" type="tel" required placeholder="+1 (___) ___-____">
         </div>
         <div class="form-row">
           <label for="q-address">Project address</label>
@@ -437,18 +447,62 @@
       form?.addEventListener('submit', async (e) => {
         e.preventDefault();
         statusEl.textContent = 'Sending...';
+        statusEl.classList.remove('is-error', 'is-success');
         const data = new FormData(form);
         try {
-          const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
-          if (res.ok) {
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: data,
+            headers: { Accept: 'application/json' }
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (res.ok && payload.success !== false) {
             statusEl.textContent = 'Thanks! We received your request.';
+            statusEl.classList.add('is-success');
             form.reset();
-            setTimeout(closeModal, 1200);
+            setTimeout(closeModal, 1600);
           } else {
-            statusEl.textContent = 'There was an issue sending your request. Please try again.';
+            statusEl.textContent = payload.message || 'There was an issue sending your request. Please try again.';
+            statusEl.classList.add('is-error');
           }
         } catch (err) {
           statusEl.textContent = 'Network error. Please retry.';
+          statusEl.classList.add('is-error');
+        }
+      });
+    })();
+
+    // Mobile navigation toggle
+    (function() {
+      const toggle = document.querySelector('.mobile-nav-toggle');
+      const mobileNav = document.getElementById('mobile-nav');
+      if (!toggle || !mobileNav) return;
+
+      function closeMobileNav() {
+        document.body.classList.remove('mobile-nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      toggle.addEventListener('click', () => {
+        const isOpen = document.body.classList.toggle('mobile-nav-open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      mobileNav.addEventListener('click', (event) => {
+        if (event.target.closest('a')) {
+          closeMobileNav();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 736) {
+          closeMobileNav();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMobileNav();
         }
       });
     })();
@@ -461,8 +515,10 @@
       const phoneError = document.getElementById("phoneError");
       const form = document.getElementById("contactForm");
       const statusEl = document.getElementById("contact-status");
+      const submitButton = form?.querySelector('button[type="submit"]');
       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      const phonePattern = /^\+?[0-9\s\-\(\)]{10,15}$/;
+      const phonePattern = /^\+?[0-9\s\-()]{10,15}$/;
+      let isSubmitting = false;
       function validateEmail() {
         const value = email.value.trim();
         if (value === "") { emailError.textContent = ""; email.classList.remove("valid","invalid"); return true; }
@@ -477,54 +533,41 @@
       }
       email.addEventListener("input", validateEmail);
       phone.addEventListener("input", validatePhone);
-      form.addEventListener("submit", async function(e) {
-        e.preventDefault();
-        if (!validateEmail() || !validatePhone()) return;
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (isSubmitting) return;
+        if (!validateEmail() || !validatePhone()) { return; }
+        isSubmitting = true;
         statusEl.textContent = "Sending...";
-        statusEl.className = "form-status";
+        statusEl.classList.remove("is-error", "is-success");
+        if (submitButton) submitButton.disabled = true;
         const data = new FormData(form);
-        const json = JSON.stringify(Object.fromEntries(data));
         try {
           const res = await fetch("https://api.web3forms.com/submit", {
             method: "POST",
-            headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: json
+            body: data,
+            headers: { Accept: "application/json" }
           });
-          const result = await res.json();
-          if (res.ok) {
-            statusEl.textContent = "Thanks! Your message has been sent.";
-            statusEl.classList.add("form-status-success");
+          const payload = await res.json().catch(() => ({}));
+          if (res.ok && payload.success !== false) {
+            statusEl.textContent = "Thanks! We received your message.";
+            statusEl.classList.add("is-success");
             form.reset();
+            email.classList.remove("valid","invalid");
+            phone.classList.remove("valid","invalid");
+            emailError.textContent = "";
+            phoneError.textContent = "";
           } else {
-            statusEl.textContent = result.message || "Something went wrong. Please try again.";
-            statusEl.classList.add("form-status-error");
+            statusEl.textContent = payload.message || "There was an issue sending your message. Please try again.";
+            statusEl.classList.add("is-error");
           }
         } catch (err) {
-          statusEl.textContent = "Network error. Please try again.";
-          statusEl.classList.add("form-status-error");
+          statusEl.textContent = "Network error. Please retry.";
+          statusEl.classList.add("is-error");
+        } finally {
+          isSubmitting = false;
+          if (submitButton) submitButton.disabled = false;
         }
-      });
-    })();
-
-    // Mobile nav toggle
-    (function() {
-      const toggle = document.getElementById('menu-toggle');
-      const nav = document.getElementById('nav');
-      if (!toggle || !nav) return;
-      toggle.addEventListener('click', function() {
-        var open = nav.classList.toggle('nav-open');
-        toggle.classList.toggle('is-active', open);
-        toggle.setAttribute('aria-expanded', String(open));
-        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
-      });
-      // Close nav when a link is tapped
-      nav.querySelectorAll('a').forEach(function(link) {
-        link.addEventListener('click', function() {
-          nav.classList.remove('nav-open');
-          toggle.classList.remove('is-active');
-          toggle.setAttribute('aria-expanded', 'false');
-          toggle.setAttribute('aria-label', 'Open navigation menu');
-        });
       });
     })();
   </script>
