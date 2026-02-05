@@ -1721,12 +1721,16 @@ body {
 }
 .quote-modal .button.primary.full:hover { background: #b2d6ae; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.28); filter: brightness(1.05); }
 .quote-status { min-height: 1.2rem; font-size: 0.95rem; color: #b2d6ae; }
+.quote-status.is-success { color: #b2d6ae; }
+.quote-status.is-error { color: #f3b3b3; }
 .contact-status {
   min-height: 1.2rem;
   font-size: 0.95rem;
   color: #2f5b2f;
   margin-top: 0.5rem;
 }
+.contact-status.is-success { color: #2f5b2f; }
+.contact-status.is-error { color: #a33d3d; }
 
 .no-scroll { overflow: hidden; }
 
