@@ -310,6 +310,7 @@
             </div>
             <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
             <button type="submit">Send Message</button>
+            <p class="contact-status" id="contact-status" role="status"></p>
             <p style="margin-top:0.5rem;font-size:0.9rem;color:#666;">By submitting, you agree that Web3Forms will process this form to deliver your message.</p>
           </form>
         </div>
@@ -505,8 +506,11 @@
       const emailError = document.getElementById("emailError");
       const phoneError = document.getElementById("phoneError");
       const form = document.getElementById("contactForm");
+      const statusEl = document.getElementById("contact-status");
+      const submitButton = form?.querySelector('button[type="submit"]');
       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/;
       const phonePattern = /^\\+?[0-9\\s\\-\\(\\)]{10,15}$/;
+      let isSubmitting = false;
       function validateEmail() {
         const value = email.value.trim();
         if (value === "") { emailError.textContent = ""; email.classList.remove("valid","invalid"); return true; }
@@ -521,7 +525,33 @@
       }
       email.addEventListener("input", validateEmail);
       phone.addEventListener("input", validatePhone);
-      form.addEventListener("submit", (event) => { if (!validateEmail() || !validatePhone()) { event.preventDefault(); } });
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (isSubmitting) return;
+        if (!validateEmail() || !validatePhone()) { return; }
+        isSubmitting = true;
+        statusEl.textContent = "Sending...";
+        if (submitButton) submitButton.disabled = true;
+        const data = new FormData(form);
+        try {
+          const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
+          if (res.ok) {
+            statusEl.textContent = "Thanks! We received your message.";
+            form.reset();
+            email.classList.remove("valid","invalid");
+            phone.classList.remove("valid","invalid");
+            emailError.textContent = "";
+            phoneError.textContent = "";
+          } else {
+            statusEl.textContent = "There was an issue sending your message. Please try again.";
+          }
+        } catch (err) {
+          statusEl.textContent = "Network error. Please retry.";
+        } finally {
+          isSubmitting = false;
+          if (submitButton) submitButton.disabled = false;
+        }
+      });
     })();
   </script>
 </body>
